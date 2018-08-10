@@ -6,22 +6,54 @@ RSpec.describe InScope do
   describe '#in_scope?' do
     subject { user.in_scope?(relation) }
 
-    let(:user) { User.new(active: true, name: 'Foo', age: 72) }
-
-    context 'when the instance satisfies the conditions' do
-      let(:relation) do
-        User.where(active: user.active, name: user.name, age: user.age)
-      end
-
-      it { is_expected.to eq(true) }
+    let(:organization) { Organization.create(category: 'Company') }
+    let(:user) do
+      User.new(active: true, name: 'Foo', age: 72, organization: organization)
     end
 
-    context 'when the instance does not satisfy the conditions' do
-      let(:relation) do
-        User.where(active: user.active, name: user.name, age: user.age + 1)
+    context 'when there are no joins' do
+      let(:user) { User.new(active: true, name: 'Foo', age: 72) }
+
+      context 'when the instance satisfies the conditions' do
+        let(:relation) do
+          User.where(active: user.active, name: user.name, age: user.age)
+        end
+
+        it { is_expected.to eq(true) }
       end
 
-      it { is_expected.to eq(false) }
+      context 'when the instance does not satisfy the conditions' do
+        let(:relation) do
+          User.where(active: user.active, name: user.name, age: user.age + 1)
+        end
+
+        it { is_expected.to eq(false) }
+      end
+    end
+
+    context 'when there is a join through a belongs_to relation' do
+      let(:user_relation) do
+        User.joins(:organization).
+          where(active: user.active, name: user.name, age: user.age)
+      end
+
+      context 'when the associated instance satisfies the conditions' do
+        let(:relation) do
+          user_relation.
+            where(organizations: { category: organization.category })
+        end
+
+        it { is_expected.to eq(true) }
+      end
+
+      context 'when the associated instance does not satisfy the conditions' do
+        let(:relation) do
+          user_relation.
+            where(organizations: { category: 'Government' })
+        end
+
+        it { is_expected.to eq(false) }
+      end
     end
   end
 end

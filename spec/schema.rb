@@ -7,4 +7,8 @@ ActiveRecord::Schema.define do
     t.string :name
     t.integer :organization_id
   end
+
+  create_table :organizations, :force => true do |t|
+    t.string :category
+  end
 end
