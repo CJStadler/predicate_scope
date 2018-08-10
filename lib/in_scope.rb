@@ -9,9 +9,12 @@ module InScope
       if where_node.respond_to?(:operator) && where_node.operator == :==
         attribute = where_node.left
         attribute_name = attribute.name
-        # table_name = attribute.relation.name # or .engine gives us the class?
 
-        expected_value = bind_params[index].last
+        expected_value = if bind_params
+          bind_params[index].last
+        else
+          where_node.right
+        end
 
         self.public_send(attribute_name) == expected_value
       else
