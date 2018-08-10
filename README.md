@@ -4,7 +4,7 @@
 
 Add this line to your application's Gemfile:
 
-```ruby
+```rb
 gem 'in_scope'
 ```
 
@@ -18,30 +18,22 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Notes
+Include the `InScope` module in your model:
 ```rb
-def in_scope(relation)
-  values = relation.values
-  bind_params = relation.values[:bind]
-
-  relation.values[:where].each do |where_node|
-    attribute = where_node.left
-    attribute_name = attribute.name
-    table_name = attribute.relation.name # or .engine gives us the class?
-
-  end
+class User < ActiveRecord::Base
+  include InScope
 end
 ```
-
-relation.values[:where].first.left
+This adds the `in_scope?` instance method. Pass it an ActiveRecord relation and
+it will check whether the instance meets the conditions of the query. For
+example,
+```rb
+an_instance.in_scope?(User.where(active: true, name: 'Foo'))
+```
+checks
+```rb
+an_instance.active && an_instance.name == 'Foo'
+```
 
 ## Contributing
 

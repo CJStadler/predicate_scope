@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Chris Stadler"]
   spec.email         = ["chrisstadler@gmail.com"]
 
-  spec.summary       = 'Check whether an instance satisfies the conditions of a scope, in memory'
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = 'Check whether an ActiveRecord instance satisfies the conditions of a scope, in memory'
+  spec.homepage      = "https://github.com/CJStadler/in_scope"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
