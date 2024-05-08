@@ -19,6 +19,8 @@ module InScope
       case node
       in Arel::Nodes::And
         node.children.all? { |child| eval_node(child, objects_by_table) }
+      in Arel::Nodes::Or
+        eval_node(node.left, objects_by_table) || eval_node(node.right, objects_by_table)
       in Arel::Nodes::Equality
         attribute = node.left
         attribute_name = attribute.name
@@ -26,9 +28,15 @@ module InScope
         table_name = attribute.relation.name
         object = objects_by_table[table_name]
 
+        if !object
+          raise "Missing join for #{table_name}"
+        end
+
         expected_value = node.right.value
 
         object.public_send(attribute_name) == expected_value
+      in Arel::Nodes::Grouping
+        eval_node(node.expr, objects_by_table)
       else
         raise "#{node.class} is an unsupported operation"
       end

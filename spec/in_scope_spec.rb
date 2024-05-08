@@ -55,5 +55,40 @@ RSpec.describe InScope do
         it { is_expected.to eq(false) }
       end
     end
+
+    context "when there is an or condition" do
+      context "when its left side is satisfied" do
+        let(:relation) do
+          User.
+            joins(:organization).
+            where(organizations: { category: organization.category }).
+            or(User.where(age: user.age + 1))
+        end
+
+        it { is_expected.to eq(true) }
+      end
+
+      context "when its right side is satisfied" do
+        let(:relation) do
+          User.
+            joins(:organization).
+            where(organizations: { category: organization.category + "Not" }).
+            or(User.where(age: user.age))
+        end
+
+        it { is_expected.to eq(true) }
+      end
+
+      context "when neither side is satisfied" do
+        let(:relation) do
+          User.
+            joins(:organization).
+            where(organizations: { category: organization.category + "Not" }).
+            or(User.where(age: user.age + 1))
+        end
+
+        it { is_expected.to eq(false) }
+      end
+    end
   end
 end
