@@ -1,6 +1,20 @@
 module InScope
   VERSION = "0.1.0"
 
+  module ClassMethods
+    def predicate_scope(name, body, ...)
+      # Add the scope to the class.
+      scope(name, body, ...)
+
+      # Define the predicate instance method.
+      predicate_name = :"#{name}?"
+      define_method(predicate_name) do |*args|
+        relation = body.call(*args)
+        in_scope?(relation)
+      end
+    end
+  end
+
   class Evaluator
     def initialize(relation, instance)
       @relation = relation
@@ -61,6 +75,10 @@ module InScope
         raise "#{attribute.class} is an unsupported attribute type"
       end
     end
+  end
+
+  def self.included(klass)
+    klass.extend(ClassMethods)
   end
 
   def in_scope?(relation)

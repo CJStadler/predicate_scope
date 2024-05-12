@@ -91,4 +91,20 @@ RSpec.describe InScope do
       end
     end
   end
+
+  describe "#predicate_scope" do
+    let!(:adult_user) { User.create(age: 18) }
+    let!(:child_user) { User.create(age: 17) }
+
+    it "generates a scope using the given conditions" do
+      relation = User.adult
+      expect(relation).to include(adult_user)
+      expect(relation).not_to include(child_user)
+    end
+
+    it "generates a predicate method using the given conditions" do
+      expect(adult_user.adult?).to eq(true)
+      expect(child_user.adult?).to eq(false)
+    end
+  end
 end
