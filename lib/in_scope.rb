@@ -32,24 +32,33 @@ module InScope
         node.children.all? { |child| eval_node(child) }
       in Arel::Nodes::Or
         eval_node(node.left) || eval_node(node.right)
+      # This is used with `or` but I don't know what it represents.
+      in Arel::Nodes::Grouping
+        eval_node(node.expr)
       in Arel::Nodes::Equality
-        attribute = node.left
-        attribute_name = attribute.name
+        eval_attribute(node.left) == eval_attribute(node.right)
+      in Arel::Nodes
 
+      else
+        raise "#{node.class} is an unsupported operation node"
+      end
+    end
+
+    def eval_attribute(attribute)
+      case attribute
+      in Arel::Attributes::Attribute
         table_name = attribute.relation.name
         instance = @instances_by_table[table_name]
 
-        if !instance
+        if instance
+          instance.public_send(attribute.name)
+        else
           raise "Missing join for #{table_name}"
         end
-
-        expected_value = node.right.value
-
-        instance.public_send(attribute_name) == expected_value
-      in Arel::Nodes::Grouping
-        eval_node(node.expr)
+      in ActiveRecord::Relation::QueryAttribute
+        attribute.value
       else
-        raise "#{node.class} is an unsupported operation"
+        raise "#{attribute.class} is an unsupported attribute type"
       end
     end
   end
