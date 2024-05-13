@@ -50,12 +50,22 @@ module InScope
       in Arel::Nodes::Grouping
         eval_node(node.expr)
       in Arel::Nodes::Equality
-        eval_attribute(node.left) == eval_attribute(node.right)
-      in Arel::Nodes
-
+        eval_comparison(node, :==)
+      in Arel::Nodes::GreaterThan
+        eval_comparison(node, :>)
+      in Arel::Nodes::LessThan
+        eval_comparison(node, :<)
+      in Arel::Nodes::GreaterThanOrEqual
+        eval_comparison(node, :>=)
+      in Arel::Nodes::LessThanOrEqual
+        eval_comparison(node, :<=)
       else
         raise "#{node.class} is an unsupported operation node"
       end
+    end
+
+    def eval_comparison(node, operator)
+      eval_attribute(node.left).public_send(operator, eval_attribute(node.right))
     end
 
     def eval_attribute(attribute)
@@ -69,7 +79,7 @@ module InScope
         else
           raise "Missing join for #{table_name}"
         end
-      in ActiveRecord::Relation::QueryAttribute
+      in ActiveRecord::Relation::QueryAttribute | Arel::Nodes::Casted
         attribute.value
       else
         raise "#{attribute.class} is an unsupported attribute type"

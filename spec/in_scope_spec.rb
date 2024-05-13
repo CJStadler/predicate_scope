@@ -90,10 +90,67 @@ RSpec.describe InScope do
         it { is_expected.to eq(false) }
       end
     end
+
+    context "when there a comparison" do
+      let(:actual_age) { 18 }
+      let(:younger_user) { User.create(age: actual_age - 1) }
+      let(:equal_user) { User.create(age: actual_age) }
+      let(:older_user) { User.create(age: actual_age + 1) }
+
+      context "equality" do
+        let(:relation) { User.where(age: actual_age) }
+
+        it "obeys the operator" do
+          expect(younger_user.in_scope?(relation)).to eq(false)
+          expect(equal_user.in_scope?(relation)).to eq(true)
+          expect(older_user.in_scope?(relation)).to eq(false)
+        end
+      end
+
+      context "greater than" do
+        let(:relation) { User.where(User.arel_table[:age].gt(18)) }
+
+        it "obeys the operator" do
+          expect(younger_user.in_scope?(relation)).to eq(false)
+          expect(equal_user.in_scope?(relation)).to eq(false)
+          expect(older_user.in_scope?(relation)).to eq(true)
+        end
+      end
+
+      context "less than" do
+        let(:relation) { User.where(age: ...actual_age) }
+
+        it "obeys the operator" do
+          expect(younger_user.in_scope?(relation)).to eq(true)
+          expect(equal_user.in_scope?(relation)).to eq(false)
+          expect(older_user.in_scope?(relation)).to eq(false)
+        end
+      end
+
+      context "greater than or equal" do
+        let(:relation) { User.where(age: actual_age..) }
+
+        it "obeys the operator" do
+          expect(younger_user.in_scope?(relation)).to eq(false)
+          expect(equal_user.in_scope?(relation)).to eq(true)
+          expect(older_user.in_scope?(relation)).to eq(true)
+        end
+      end
+
+      context "less than or equal" do
+        let(:relation) { User.where(age: ..actual_age) }
+
+        it "obeys the operator" do
+          expect(younger_user.in_scope?(relation)).to eq(true)
+          expect(equal_user.in_scope?(relation)).to eq(true)
+          expect(older_user.in_scope?(relation)).to eq(false)
+        end
+      end
+    end
   end
 
   describe "#predicate_scope" do
-    let!(:adult_user) { User.create(age: 18) }
+    let!(:adult_user) { User.create(age: 20) }
     let!(:child_user) { User.create(age: 17) }
 
     it "generates a scope using the given conditions" do
