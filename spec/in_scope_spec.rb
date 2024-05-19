@@ -91,6 +91,45 @@ RSpec.describe InScope do
       end
     end
 
+    context "when there is a not condition" do
+      # Using two conditions generates a `Not` node, instead of `NotEquals`.
+      let(:relation) { User.where.not(active: active, age: user.age) }
+
+      context "when the sub-condition is satisifed" do
+        let(:active) { true }
+        it { is_expected.to eq(false) }
+      end
+
+      context "when the sub-condition is not satisifed" do
+        let(:active) { false }
+        it { is_expected.to eq(true) }
+      end
+    end
+
+    context "when there is an in condition" do
+      let(:relation) { User.where(age: ages) }
+
+      context "when the list is empty" do
+        let(:ages) { [] }
+        it { is_expected.to eq(false) }
+      end
+
+      context "when the list is empty" do
+        let(:ages) { [] }
+        it { is_expected.to eq(false) }
+      end
+
+      context "when one of the elements is equal" do
+        let(:ages) { [user.age - 1, user.age, user.age + 1] }
+        it { is_expected.to eq(true) }
+      end
+
+      context "when none of the elements are equal" do
+        let(:ages) { [user.age - 1, user.age + 1] }
+        it { is_expected.to eq(false) }
+      end
+    end
+
     context "when there a comparison" do
       let(:actual_age) { 18 }
       let(:younger_user) { User.create(age: actual_age - 1) }
@@ -104,6 +143,16 @@ RSpec.describe InScope do
           expect(younger_user.in_scope?(relation)).to eq(false)
           expect(equal_user.in_scope?(relation)).to eq(true)
           expect(older_user.in_scope?(relation)).to eq(false)
+        end
+      end
+
+      context "not equal" do
+        let(:relation) { User.where.not(age: actual_age) }
+
+        it "obeys the operator" do
+          expect(younger_user.in_scope?(relation)).to eq(true)
+          expect(equal_user.in_scope?(relation)).to eq(false)
+          expect(older_user.in_scope?(relation)).to eq(true)
         end
       end
 

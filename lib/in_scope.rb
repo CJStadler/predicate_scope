@@ -42,6 +42,8 @@ module InScope
       case node
       in Arel::Nodes::SelectCore
         node.wheres.all? { |node| eval_node(node) }
+      in Arel::Nodes::Not
+        !eval_node(node.expr)
       in Arel::Nodes::And
         node.children.all? { |child| eval_node(child) }
       in Arel::Nodes::Or
@@ -49,8 +51,20 @@ module InScope
       # This is used with `or` but I don't know what it represents.
       in Arel::Nodes::Grouping
         eval_node(node.expr)
+      in Arel::Nodes::In
+        attribute_value = eval_attribute(node.left)
+        if node.right.is_a?(Enumerable)
+          node.right.any? { |value| value == attribute_value }
+        else
+          raise "#{node.class} not supported with this argument"
+        end
+      in Arel::Nodes::HomogeneousIn
+        attribute_value = eval_attribute(node.attribute)
+        node.values.any? { |value| value == attribute_value }
       in Arel::Nodes::Equality
         eval_comparison(node, :==)
+      in Arel::Nodes::NotEqual
+        eval_comparison(node, :!=)
       in Arel::Nodes::GreaterThan
         eval_comparison(node, :>)
       in Arel::Nodes::LessThan
