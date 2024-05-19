@@ -3,6 +3,7 @@ RSpec.describe InScope do
     expect(InScope::VERSION).to eq('0.1.0')
   end
 
+  # TODO: tests with includes
   describe '#in_scope?' do
     subject { user.in_scope?(relation) }
 
@@ -198,6 +199,7 @@ RSpec.describe InScope do
     end
   end
 
+  # TODO: add tests that `user.in_scope?(relation) == relation.includes?(user)`
   describe "#predicate_scope" do
     let!(:adult_user) { User.create(age: 20) }
     let!(:child_user) { User.create(age: 17) }

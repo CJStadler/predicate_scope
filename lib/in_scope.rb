@@ -56,6 +56,7 @@ module InScope
         if node.right.is_a?(Enumerable)
           node.right.any? { |value| value == attribute_value }
         else
+          # TODO: replace with class
           raise "#{node.class} not supported with this argument"
         end
       in Arel::Nodes::HomogeneousIn
@@ -74,6 +75,7 @@ module InScope
       in Arel::Nodes::LessThanOrEqual
         eval_comparison(node, :<=)
       else
+        # TODO: replace with class
         raise "#{node.class} is an unsupported operation node"
       end
     end
@@ -105,6 +107,7 @@ module InScope
     klass.extend(ClassMethods)
   end
 
+  # TODO: rename
   def in_scope?(relation)
     Evaluator.new(relation, self).eval
   end
