@@ -21,8 +21,9 @@ module InScope
       @instance = instance
 
       @instances_by_table = { instance.class.table_name => instance }
-      relation.values[:joins]&.each do |join_name|
-        object = instance.public_send(join_name)
+      associations = relation.values[:joins].to_a.chain(relation.values[:includes].to_a)
+      associations.each do |association_name|
+        object = instance.public_send(association_name)
         @instances_by_table[object.class.table_name] = object
       end
     end

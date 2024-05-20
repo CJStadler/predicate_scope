@@ -3,7 +3,7 @@ RSpec.describe InScope do
     expect(InScope::VERSION).to eq('0.1.0')
   end
 
-  # TODO: tests with includes
+  # TODO: spec with SQL (should fail).
   describe '#in_scope?' do
     subject { user.in_scope?(relation) }
 
@@ -12,29 +12,35 @@ RSpec.describe InScope do
       User.new(active: true, name: 'Foo', age: 72, organization: organization)
     end
 
-    context 'when there are no joins' do
-      let(:user) { User.new(active: true, name: 'Foo', age: 72) }
+    # TODO: join through has_many
+    context 'when there is a join through a belongs_to relation' do
+      let(:user_relation) do
+        User.joins(:organization).
+          where(active: user.active, name: user.name, age: user.age)
+      end
 
-      context 'when the instance satisfies the conditions' do
+      context 'when the associated instance satisfies the conditions' do
         let(:relation) do
-          User.where(active: user.active, name: user.name, age: user.age)
+          user_relation.
+            where(organizations: { category: organization.category })
         end
 
         it { is_expected.to eq(true) }
       end
 
-      context 'when the instance does not satisfy the conditions' do
+      context 'when the associated instance does not satisfy the conditions' do
         let(:relation) do
-          User.where(active: user.active, name: user.name, age: user.age + 1)
+          user_relation.
+            where(organizations: { category: 'Government' })
         end
 
         it { is_expected.to eq(false) }
       end
     end
 
-    context 'when there is a join through a belongs_to relation' do
+    context "when there is an includes through a belogns_to relation" do
       let(:user_relation) do
-        User.joins(:organization).
+        User.includes(:organization).
           where(active: user.active, name: user.name, age: user.age)
       end
 
