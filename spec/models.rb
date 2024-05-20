@@ -4,7 +4,7 @@ class User < ActiveRecord::Base
   belongs_to :organization
 
   predicate_scope :adult, -> { where(age: 18..) }
-  predicate_scope :in_category, ->(category) { where(organizations: { category: category }) }
+  predicate_scope :older_than, ->(age) { where(age: age..) }
 end
 
 class Organization < ActiveRecord::Base

@@ -204,15 +204,30 @@ RSpec.describe InScope do
     let!(:adult_user) { User.create(age: 20) }
     let!(:child_user) { User.create(age: 17) }
 
-    it "generates a scope using the given conditions" do
-      relation = User.adult
-      expect(relation).to include(adult_user)
-      expect(relation).not_to include(child_user)
+    context "when the lambda has no parameters" do
+      it "generates a scope using the given conditions" do
+        relation = User.adult
+        expect(relation).to include(adult_user)
+        expect(relation).not_to include(child_user)
+      end
+
+      it "generates a predicate method using the given conditions" do
+        expect(adult_user.adult?).to eq(true)
+        expect(child_user.adult?).to eq(false)
+      end
     end
 
-    it "generates a predicate method using the given conditions" do
-      expect(adult_user.adult?).to eq(true)
-      expect(child_user.adult?).to eq(false)
+    context "when the lambda has parameters" do
+      it "generates a scope that using the given conditions that takes the parameters" do
+        relation = User.older_than(18)
+        expect(relation).to include(adult_user)
+        expect(relation).not_to include(child_user)
+      end
+
+      it "generates a predicate method using the given conditions that takes the parameters" do
+        expect(adult_user.older_than?(18)).to eq(true)
+        expect(child_user.older_than?(18)).to eq(false)
+      end
     end
   end
 end
