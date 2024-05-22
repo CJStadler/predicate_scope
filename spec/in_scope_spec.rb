@@ -37,7 +37,7 @@ RSpec.describe InScope do
       end
     end
 
-    context "when there is an includes through a belogns_to relation" do
+    context "when there is an includes through a belongs_to relation" do
       let(:user_relation) do
         User.includes(:organization).
           where(active: user.active, name: user.name, age: user.age)
