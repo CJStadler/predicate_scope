@@ -42,7 +42,7 @@ module InScope
       predicate_name = :"#{name}?"
       define_method(predicate_name) do |*args|
         relation = body.call(*args)
-        in_scope?(relation)
+        satisfies_conditions_of?(relation)
       end
     end
   end
@@ -138,8 +138,7 @@ module InScope
     klass.extend(ClassMethods)
   end
 
-  # TODO: rename
-  def in_scope?(relation)
+  def satisfies_conditions_of?(relation)
     Evaluator.new(relation, self).eval
   end
 end

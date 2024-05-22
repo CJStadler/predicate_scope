@@ -3,8 +3,8 @@ RSpec.describe InScope do
     expect(InScope::VERSION).to eq('0.1.0')
   end
 
-  describe '#in_scope?' do
-    subject { user.in_scope?(relation) }
+  describe '#satisfies_conditions_of?' do
+    subject { user.satisfies_conditions_of?(relation) }
 
     let(:organization) { Organization.create(category: 'Company') }
     let(:user) do
@@ -146,9 +146,9 @@ RSpec.describe InScope do
         let(:relation) { User.where(age: actual_age) }
 
         it "obeys the operator" do
-          expect(younger_user.in_scope?(relation)).to eq(false)
-          expect(equal_user.in_scope?(relation)).to eq(true)
-          expect(older_user.in_scope?(relation)).to eq(false)
+          expect(younger_user.satisfies_conditions_of?(relation)).to eq(false)
+          expect(equal_user.satisfies_conditions_of?(relation)).to eq(true)
+          expect(older_user.satisfies_conditions_of?(relation)).to eq(false)
         end
       end
 
@@ -156,9 +156,9 @@ RSpec.describe InScope do
         let(:relation) { User.where.not(age: actual_age) }
 
         it "obeys the operator" do
-          expect(younger_user.in_scope?(relation)).to eq(true)
-          expect(equal_user.in_scope?(relation)).to eq(false)
-          expect(older_user.in_scope?(relation)).to eq(true)
+          expect(younger_user.satisfies_conditions_of?(relation)).to eq(true)
+          expect(equal_user.satisfies_conditions_of?(relation)).to eq(false)
+          expect(older_user.satisfies_conditions_of?(relation)).to eq(true)
         end
       end
 
@@ -166,9 +166,9 @@ RSpec.describe InScope do
         let(:relation) { User.where(User.arel_table[:age].gt(18)) }
 
         it "obeys the operator" do
-          expect(younger_user.in_scope?(relation)).to eq(false)
-          expect(equal_user.in_scope?(relation)).to eq(false)
-          expect(older_user.in_scope?(relation)).to eq(true)
+          expect(younger_user.satisfies_conditions_of?(relation)).to eq(false)
+          expect(equal_user.satisfies_conditions_of?(relation)).to eq(false)
+          expect(older_user.satisfies_conditions_of?(relation)).to eq(true)
         end
       end
 
@@ -176,9 +176,9 @@ RSpec.describe InScope do
         let(:relation) { User.where(age: ...actual_age) }
 
         it "obeys the operator" do
-          expect(younger_user.in_scope?(relation)).to eq(true)
-          expect(equal_user.in_scope?(relation)).to eq(false)
-          expect(older_user.in_scope?(relation)).to eq(false)
+          expect(younger_user.satisfies_conditions_of?(relation)).to eq(true)
+          expect(equal_user.satisfies_conditions_of?(relation)).to eq(false)
+          expect(older_user.satisfies_conditions_of?(relation)).to eq(false)
         end
       end
 
@@ -186,9 +186,9 @@ RSpec.describe InScope do
         let(:relation) { User.where(age: actual_age..) }
 
         it "obeys the operator" do
-          expect(younger_user.in_scope?(relation)).to eq(false)
-          expect(equal_user.in_scope?(relation)).to eq(true)
-          expect(older_user.in_scope?(relation)).to eq(true)
+          expect(younger_user.satisfies_conditions_of?(relation)).to eq(false)
+          expect(equal_user.satisfies_conditions_of?(relation)).to eq(true)
+          expect(older_user.satisfies_conditions_of?(relation)).to eq(true)
         end
       end
 
@@ -196,9 +196,9 @@ RSpec.describe InScope do
         let(:relation) { User.where(age: ..actual_age) }
 
         it "obeys the operator" do
-          expect(younger_user.in_scope?(relation)).to eq(true)
-          expect(equal_user.in_scope?(relation)).to eq(true)
-          expect(older_user.in_scope?(relation)).to eq(false)
+          expect(younger_user.satisfies_conditions_of?(relation)).to eq(true)
+          expect(equal_user.satisfies_conditions_of?(relation)).to eq(true)
+          expect(older_user.satisfies_conditions_of?(relation)).to eq(false)
         end
       end
     end
@@ -224,7 +224,7 @@ RSpec.describe InScope do
     end
   end
 
-  # TODO: add tests that `user.in_scope?(relation) == relation.includes?(user)`
+  # TODO: add tests that `user.satisfies_conditions_of?(relation) == relation.includes?(user)`
   describe "#predicate_scope" do
     let!(:adult_user) { User.create(age: 20) }
     let!(:child_user) { User.create(age: 17) }
