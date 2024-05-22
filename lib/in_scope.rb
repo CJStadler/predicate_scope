@@ -34,14 +34,14 @@ module InScope
   end
 
   module ClassMethods
-    def predicate_scope(name, body, ...)
+    def predicate_scope(scope_name, relation_proc, ...)
       # Add the scope to the class.
-      scope(name, body, ...)
+      scope(scope_name, relation_proc, ...)
 
       # Define the predicate instance method.
-      predicate_name = :"#{name}?"
-      define_method(predicate_name) do |*args|
-        relation = body.call(*args)
+      predicate_name = :"#{scope_name}?"
+      define_method(predicate_name) do |*predicate_args|
+        relation = relation_proc.call(*predicate_args)
         satisfies_conditions_of?(relation)
       end
     end
