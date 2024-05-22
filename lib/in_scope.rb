@@ -1,6 +1,38 @@
 module InScope
   VERSION = "0.1.0"
 
+  module Errors
+    class UnsupportedOperation < StandardError
+      def initialize(node)
+        super("Operation node type #{node.class} is not yet supported.")
+      end
+    end
+
+    class UnsupportedAttribute < StandardError
+      def initialize(attribute)
+        super("Attribute type #{attribute.class} is not yet supported.")
+      end
+    end
+
+    class UnsupportedInOperand < StandardError
+      def initialize(operand)
+        super("In operations with operand type #{operand.class} are not yet supported.")
+      end
+    end
+
+    class MissingAssociation < StandardError
+      def initialize(table)
+        super("Missing association for table \"#{table}\". You probably need to join it.")
+      end
+    end
+
+    class MultipleCores < StandardError
+      def initialize
+        super("More than one core is not yet supported.")
+      end
+    end
+  end
+
   module ClassMethods
     def predicate_scope(name, body, ...)
       # Add the scope to the class.
@@ -31,7 +63,7 @@ module InScope
     def eval
       cores = @relation.arel.ast.cores
       if cores.length > 1
-        raise "More than one core"
+        raise Errors::MultipleCores.new
       end
       root = cores.first
       eval_node(root)
@@ -57,8 +89,7 @@ module InScope
         if node.right.is_a?(Enumerable)
           node.right.any? { |value| value == attribute_value }
         else
-          # TODO: replace with class
-          raise "#{node.class} not supported with this argument"
+          raise Errors::UnsupportedInOperand.new(node.right)
         end
       in Arel::Nodes::HomogeneousIn
         attribute_value = eval_attribute(node.attribute)
@@ -76,8 +107,7 @@ module InScope
       in Arel::Nodes::LessThanOrEqual
         eval_comparison(node, :<=)
       else
-        # TODO: replace with class
-        raise "#{node.class} is an unsupported operation node"
+        raise Errors::UnsupportedOperation.new(node)
       end
     end
 
@@ -94,12 +124,12 @@ module InScope
         if instance
           instance.public_send(attribute.name)
         else
-          raise "Missing join for #{table_name}"
+          raise Errors::MissingAssociation.new(table_name)
         end
       in ActiveRecord::Relation::QueryAttribute | Arel::Nodes::Casted
         attribute.value
       else
-        raise "#{attribute.class} is an unsupported attribute type"
+        raise Errors::UnsupportedAttribute.new(attribute)
       end
     end
   end

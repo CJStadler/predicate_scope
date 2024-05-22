@@ -3,7 +3,6 @@ RSpec.describe InScope do
     expect(InScope::VERSION).to eq('0.1.0')
   end
 
-  # TODO: spec with SQL (should fail).
   describe '#in_scope?' do
     subject { user.in_scope?(relation) }
 
@@ -201,6 +200,26 @@ RSpec.describe InScope do
           expect(equal_user.in_scope?(relation)).to eq(true)
           expect(older_user.in_scope?(relation)).to eq(false)
         end
+      end
+    end
+
+    context "when there is an unsupported operation" do
+      let(:relation) { User.where("age = 45") }
+      it "raises UnsupportedOperation" do
+        expect { subject }.to raise_error(
+          InScope::Errors::UnsupportedOperation,
+          "Operation node type Arel::Nodes::SqlLiteral is not yet supported."
+        )
+      end
+    end
+
+    context "when a table definition is missing" do
+      let(:relation) { User.where(organizations: { category: "cat"}) }
+      it "raises MissingTableDefinition" do
+        expect { subject }.to raise_error(
+          InScope::Errors::MissingAssociation,
+          "Missing association for table \"organizations\". You probably need to join it."
+        )
       end
     end
   end
