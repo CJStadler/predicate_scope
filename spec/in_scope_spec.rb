@@ -6,9 +6,25 @@ RSpec.describe InScope do
   describe '#satisfies_conditions_of?' do
     subject { user.satisfies_conditions_of?(relation) }
 
-    let(:organization) { Organization.create(category: 'Company') }
-    let(:user) do
-      User.new(active: true, name: 'Foo', age: 72, organization: organization)
+    shared_examples "satisfied" do
+      it "returns true" do
+        expect(subject).to eq(true)
+        # Confirm that the object does satisfy the conditions by querying.
+        expect(relation).to include(user)
+      end
+    end
+
+    shared_examples "not satisfied" do
+      it "returns false" do
+        expect(subject).to eq(false)
+        # Confirm that the object does not satisfy the conditions by querying.
+        expect(relation).not_to include(user)
+      end
+    end
+
+    let!(:organization) { Organization.create(category: 'Company') }
+    let!(:user) do
+      User.create(active: true, name: 'Foo', age: 72, organization: organization)
     end
 
     # TODO: join through has_many
@@ -24,7 +40,7 @@ RSpec.describe InScope do
             where(organizations: { category: organization.category })
         end
 
-        it { is_expected.to eq(true) }
+        include_examples "satisfied"
       end
 
       context 'when the associated instance does not satisfy the conditions' do
@@ -33,7 +49,7 @@ RSpec.describe InScope do
             where(organizations: { category: 'Government' })
         end
 
-        it { is_expected.to eq(false) }
+        include_examples "not satisfied"
       end
     end
 
@@ -49,7 +65,7 @@ RSpec.describe InScope do
             where(organizations: { category: organization.category })
         end
 
-        it { is_expected.to eq(true) }
+        include_examples "satisfied"
       end
 
       context 'when the associated instance does not satisfy the conditions' do
@@ -58,7 +74,7 @@ RSpec.describe InScope do
             where(organizations: { category: 'Government' })
         end
 
-        it { is_expected.to eq(false) }
+        include_examples "not satisfied"
       end
     end
 
@@ -71,7 +87,7 @@ RSpec.describe InScope do
             or(User.where(age: user.age + 1))
         end
 
-        it { is_expected.to eq(true) }
+        include_examples "satisfied"
       end
 
       context "when its right side is satisfied" do
@@ -82,7 +98,7 @@ RSpec.describe InScope do
             or(User.where(age: user.age))
         end
 
-        it { is_expected.to eq(true) }
+        include_examples "satisfied"
       end
 
       context "when neither side is satisfied" do
@@ -93,7 +109,7 @@ RSpec.describe InScope do
             or(User.where(age: user.age + 1))
         end
 
-        it { is_expected.to eq(false) }
+        include_examples "not satisfied"
       end
     end
 
@@ -101,14 +117,14 @@ RSpec.describe InScope do
       # Using two conditions generates a `Not` node, instead of `NotEquals`.
       let(:relation) { User.where.not(active: active, age: user.age) }
 
-      context "when the sub-condition is satisifed" do
+      context "when the sub-condition is satisfied" do
         let(:active) { true }
-        it { is_expected.to eq(false) }
+        include_examples "not satisfied"
       end
 
-      context "when the sub-condition is not satisifed" do
+      context "when the sub-condition is not satisfied" do
         let(:active) { false }
-        it { is_expected.to eq(true) }
+        include_examples "satisfied"
       end
     end
 
@@ -117,22 +133,22 @@ RSpec.describe InScope do
 
       context "when the list is empty" do
         let(:ages) { [] }
-        it { is_expected.to eq(false) }
+        include_examples "not satisfied"
       end
 
       context "when the list is empty" do
         let(:ages) { [] }
-        it { is_expected.to eq(false) }
+        include_examples "not satisfied"
       end
 
       context "when one of the elements is equal" do
         let(:ages) { [user.age - 1, user.age, user.age + 1] }
-        it { is_expected.to eq(true) }
+        include_examples "satisfied"
       end
 
       context "when none of the elements are equal" do
         let(:ages) { [user.age - 1, user.age + 1] }
-        it { is_expected.to eq(false) }
+        include_examples "not satisfied"
       end
     end
 
@@ -224,7 +240,6 @@ RSpec.describe InScope do
     end
   end
 
-  # TODO: add tests that `user.satisfies_conditions_of?(relation) == relation.includes?(user)`
   describe "#predicate_scope" do
     let!(:adult_user) { User.create(age: 20) }
     let!(:child_user) { User.create(age: 17) }
