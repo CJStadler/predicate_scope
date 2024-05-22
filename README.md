@@ -25,18 +25,20 @@ class User < ActiveRecord::Base
 end
 ```
 
-This defines an `User.active` scope, as if you had used `scope` like normal, but
-also defines a predicate method `User#active?`:
+This defines two methods:
+- A `User.active` scope, as if you had used `scope` like normal.
+- A predicate instance method `User#active?`, which behaves just like the
+hand-written version of `active?` in the original example:
 
-```
+```rb
 user = User.new(deleted: false, state: "confirmed")
 user.active? # true
 user.state = "unconfirmed"
 user.active? # false
 ```
 
-This checks whether the instance satisfies the conditions of the scope, just
-like the hand-written `active?` method does in the above example.
+The predicate method checks the conditions of the scope against the instance _in
+memory_, without querying the database. Again, just like the hand-written `active?`.
 
 ## Implementation
 
@@ -82,8 +84,8 @@ include PredicateScope
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/
-CJStadler/predicate_scope.
+Bug reports and pull requests are welcome on GitHub at
+https://github.com/CJStadler/predicate_scope.
 
 ## License
 
