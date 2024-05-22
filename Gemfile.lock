@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    in_scope (0.1.0)
+    predicate_scope (0.1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -72,7 +72,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord
   bundler
-  in_scope!
+  predicate_scope!
   pry
   rake
   rspec

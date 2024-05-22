@@ -1,4 +1,4 @@
-module InScope
+module PredicateScope
   VERSION = "0.1.0"
 
   module Errors

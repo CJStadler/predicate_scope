@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  include InScope
+  include PredicateScope
 
   belongs_to :organization
 
@@ -8,7 +8,7 @@ class User < ActiveRecord::Base
 end
 
 class Organization < ActiveRecord::Base
-  include InScope
+  include PredicateScope
 
   has_many :users
 

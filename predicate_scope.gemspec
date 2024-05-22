@@ -1,16 +1,16 @@
 
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "in_scope"
+require "predicate_scope"
 
 Gem::Specification.new do |spec|
-  spec.name          = "in_scope"
-  spec.version       = InScope::VERSION
+  spec.name          = "predicate_scope"
+  spec.version       = PredicateScope::VERSION
   spec.authors       = ["Chris Stadler"]
   spec.email         = ["chrisstadler@gmail.com"]
 
-  spec.summary       = 'Check whether an ActiveRecord instance satisfies the conditions of a scope, in memory'
-  spec.homepage      = "https://github.com/CJStadler/in_scope"
+  spec.summary       = 'Check whether an ActiveRecord instance satisfies the conditions of a relation, in memory'
+  spec.homepage      = "https://github.com/CJStadler/predicate_scope"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'

@@ -1,6 +1,6 @@
 require 'active_record'
 require 'bundler/setup'
-require 'in_scope'
+require 'predicate_scope'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

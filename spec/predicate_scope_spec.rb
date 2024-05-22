@@ -1,6 +1,6 @@
-RSpec.describe InScope do
+RSpec.describe PredicateScope do
   it "has a version number" do
-    expect(InScope::VERSION).to eq('0.1.0')
+    expect(PredicateScope::VERSION).to eq('0.1.0')
   end
 
   describe '#satisfies_conditions_of?' do
@@ -223,7 +223,7 @@ RSpec.describe InScope do
       let(:relation) { User.where("age = 45") }
       it "raises UnsupportedOperation" do
         expect { subject }.to raise_error(
-          InScope::Errors::UnsupportedOperation,
+          PredicateScope::Errors::UnsupportedOperation,
           "Operation node type Arel::Nodes::SqlLiteral is not yet supported."
         )
       end
@@ -233,7 +233,7 @@ RSpec.describe InScope do
       let(:relation) { User.where(organizations: { category: "cat"}) }
       it "raises MissingTableDefinition" do
         expect { subject }.to raise_error(
-          InScope::Errors::MissingAssociation,
+          PredicateScope::Errors::MissingAssociation,
           "Missing association for table \"organizations\". You probably need to join it."
         )
       end
