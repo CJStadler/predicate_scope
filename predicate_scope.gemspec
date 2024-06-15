@@ -27,4 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.13"
   spec.add_development_dependency "activerecord", "~> 7.1"
   spec.add_development_dependency "sqlite3", "~> 1.4" # activerecord seems to require this version.
+  spec.add_development_dependency "pbt"
 end

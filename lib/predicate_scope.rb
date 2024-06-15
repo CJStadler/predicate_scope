@@ -107,6 +107,7 @@ module PredicateScope
       in Arel::Nodes::LessThanOrEqual
         eval_comparison(node, :<=)
       else
+        # TODO: Between
         raise Errors::UnsupportedOperation.new(node)
       end
     end
