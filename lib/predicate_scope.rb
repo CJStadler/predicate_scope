@@ -1,3 +1,5 @@
+require "predicate_scope/expressions"
+
 module PredicateScope
   VERSION = "0.1.0"
 
@@ -35,6 +37,8 @@ module PredicateScope
 
   module ClassMethods
     def predicate(name, conditions)
+      conditions_expression = Expressions::Expression.deserialize(conditions)
+
       # Add the scope to the class.
       relation_proc = ->() do
         where(conditions)
@@ -48,7 +52,7 @@ module PredicateScope
           raise "TODO: arg handling"
         end
 
-        satisfies_conditions?(conditions)
+        conditions_expression.eval(self)
       end
     end
 
@@ -175,10 +179,6 @@ module PredicateScope
 
   def self.included(klass)
     klass.extend(ClassMethods)
-  end
-
-  def satisfies_conditions?(conditions)
-    Evaluator.new(conditions, self).eval
   end
 
   def satisfies_conditions_of?(relation)

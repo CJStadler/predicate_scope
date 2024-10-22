@@ -28,4 +28,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "activerecord", "~> 7.1"
   spec.add_development_dependency "sqlite3", "~> 1.4" # activerecord seems to require this version.
   spec.add_development_dependency "pbt"
+  spec.add_development_dependency "pry-byebug"
 end
