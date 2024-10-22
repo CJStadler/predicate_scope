@@ -34,6 +34,24 @@ module PredicateScope
   end
 
   module ClassMethods
+    def predicate(name, conditions)
+      # Add the scope to the class.
+      relation_proc = ->() do
+        where(conditions)
+      end
+      scope(name, relation_proc)
+
+      # Define the predicate instance method.
+      predicate_name = :"#{name}?"
+      define_method(predicate_name) do |*predicate_args|
+        if !predicate_args.empty?
+          raise "TODO: arg handling"
+        end
+
+        satisfies_conditions?(conditions)
+      end
+    end
+
     def predicate_scope(scope_name, relation_proc, ...)
       # Add the scope to the class.
       scope(scope_name, relation_proc, ...)
@@ -48,6 +66,26 @@ module PredicateScope
   end
 
   class Evaluator
+    def initialize(conditions, instance)
+      @conditions = conditions
+      @instance = instance
+    end
+
+    def eval
+      case @conditions
+      in Array
+        raise "TODO"
+      in Hash
+        @conditions.all? do |k, v|
+          @instance.public_send(k) == v
+        end
+      else
+        raise "TODO"
+      end
+    end
+  end
+
+  class RelationEvaluator
     def initialize(relation, instance)
       @relation = relation
       @instance = instance
@@ -139,7 +177,11 @@ module PredicateScope
     klass.extend(ClassMethods)
   end
 
+  def satisfies_conditions?(conditions)
+    Evaluator.new(conditions, self).eval
+  end
+
   def satisfies_conditions_of?(relation)
-    Evaluator.new(relation, self).eval
+    RelationEvaluator.new(relation, self).eval
   end
 end

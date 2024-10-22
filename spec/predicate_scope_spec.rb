@@ -240,7 +240,7 @@ RSpec.describe PredicateScope do
     end
   end
 
-  describe "#predicate_scope" do
+  describe ".predicate_scope" do
     let!(:adult_user) { User.create(age: 20) }
     let!(:child_user) { User.create(age: 17) }
 
@@ -268,6 +268,21 @@ RSpec.describe PredicateScope do
         expect(adult_user.older_than?(18)).to eq(true)
         expect(child_user.older_than?(18)).to eq(false)
       end
+    end
+  end
+
+  describe ".predicate" do
+    let(:admin_user) { User.create(active: true, role: "admin") }
+    let(:guest_user) { User.create(active: true, role: "guest") }
+
+    it "generates a predicate instance method based on the conditions" do
+      expect(admin_user.admin?).to eq(true)
+      expect(guest_user.admin?).to eq(false)
+    end
+
+    it "generates a scope based on the conditions" do
+      expect(User.admin).to include(admin_user)
+      expect(User.admin).not_to include(guest_user)
     end
   end
 end

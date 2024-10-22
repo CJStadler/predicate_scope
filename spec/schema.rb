@@ -3,6 +3,7 @@ ActiveRecord::Schema.define do
 
   create_table :users, :force => true do |t|
     t.boolean :active
+    t.string :role
     t.integer :age
     t.string :name
     t.integer :organization_id

@@ -3,6 +3,8 @@ class User < ActiveRecord::Base
 
   belongs_to :organization
 
+  predicate :admin, role: "admin", active: true
+
   predicate_scope :adult, -> { where(age: 18..) }
   predicate_scope :older_than, ->(age) { where(age: age..) }
 end
