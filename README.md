@@ -91,3 +91,41 @@ https://github.com/CJStadler/predicate_scope.
 
 The gem is available as open source under the terms of the
 [MIT License](https://opensource.org/licenses/MIT).
+
+## Notes
+
+```rb
+{organization: {name: "foo"}}
+self.organization.name == "foo"
+joins(:organization).where({organization: {name: "foo"}})
+```
+
+```rb
+{orders_count: {_op: :not, _arg: [1, 3, 5]}}
+{orders_count: P::Not([1, 3, 5])}
+
+![1, 3, 5].any? { |x| x == self.orders_count }
+![1, 3, 5].include?(self.orders_count)
+Customer.where.not(orders_count: [1, 3, 5])
+SELECT * FROM customers WHERE (customers.orders_count NOT IN (1,3,5))
+[1, 3, 5].include?(self.orders_count)
+```
+
+```rb
+[{last_name: "Smith"}, {orders_count: [1, 3, 5]}]
+{_op: :or, _args: [{last_name: "Smith"}, {orders_count: [1, 3, 5]}]}
+P::Or({last_name: "Smith"}, {orders_count: [1, 3, 5]})
+
+self.last_name == "Smith" || [1, 3, 5].any? { |x| x == self.orders_count }
+Customer.where(last_name: 'Smith').or(Customer.where(orders_count: [1, 3, 5]))
+SELECT * FROM customers WHERE (customers.last_name = 'Smith' OR customers.orders_count IN (1,3,5)
+```
+
+```rb
+{id: {_op: :and, _args: [[1, 2], [2, 3]]}}
+{id: P::And([1, 2], [2, 3])}
+
+(self.id == 1 || self.id == 2) && (self.id == 2 || self.id == 3)
+Customer.where(id: [1, 2]).and(Customer.where(id: [2, 3]))
+SELECT * FROM customers WHERE (customers.id IN (1, 2) AND customers.id IN (2, 3))
+```
